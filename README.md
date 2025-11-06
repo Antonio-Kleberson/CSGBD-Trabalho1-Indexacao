@@ -13,11 +13,12 @@ Com as operações: inserir, buscar, remover e exibir.
 O projeto será desenvolvido em **Python 3.x**, com código modular, exemplos de uso e testes automatizados.
 
 ##  Execução
-```bash
-python -m examples.demo_insert_search
+```bash hash_extensible.py
+python -m src.extensible_hash.demo_hash
 
 
-## Autor
+
+## Autores
 
 Nome: Antonio Avelino, Antonio Kleberson
 
