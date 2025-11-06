@@ -21,8 +21,8 @@ def visualizar_hash(hash_table, step_name="hash_step"):
             bucket_label = seen[id(b)]
             conteudo = "\\n".join([f"{k}:{v}" for k, v in b.items]) or "(vazio)"
             dot.node(bucket_label,
-                     f"{bucket_label}\\nld={b.local_depth}\\n{conteudo}",
-                     shape="box", style="filled", color="lightblue")
+                    f"{bucket_label}\\nld={b.local_depth}\\n{conteudo}",
+                    shape="box", style="filled", color="lightblue")
 
         # Conecta diretório → bucket
         dot.edge(dir_label, seen[id(b)])
