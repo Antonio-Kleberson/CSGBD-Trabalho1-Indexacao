@@ -100,3 +100,87 @@ class InternalNode(Node):
         return key_promoted, new_node
 
 
+# --- 2. Classe Principal da Árvore B+ ---
+
+class BPlusTree:
+    
+    def __init__(self, order: int):
+        """Inicializa a árvore com a ordem especificada."""
+        # A ordem deve ser pelo menos 3 para ter sentido em um B-Tree
+        if order < 3:
+            raise ValueError("A ordem da Árvore B+ deve ser no mínimo 3.")
+            
+        self.order = order
+        # A árvore começa com um nó folha como raiz
+        self.root = LeafNode(order) 
+
+    # --- Métodos de Navegação ---
+    
+    def _find_leaf(self, key) -> LeafNode:
+        """Navega pelos nós internos até encontrar o nó folha correto."""
+        node = self.root
+        while not isinstance(node, LeafNode):
+            # Encontra o índice da chave (para determinar qual filho seguir)
+            index = node.find_index(key)
+            node = node.children[index]
+        return node
+        
+    # --- Método de Inserção ---
+
+    def insert(self, key: int, value: any):
+        """Insere um par (chave, valor) na árvore B+."""
+        leaf = self._find_leaf(key)
+
+        # 1. Adiciona o par (chave, valor) no nó folha
+        leaf.add_key_value(key, value)
+        
+        # 2. Verifica se o nó folha precisa ser dividido
+        if leaf.is_full():
+            key_promoted, new_node = leaf.split()
+            self._handle_split(leaf, key_promoted, new_node)
+
+    def _handle_split(self, old_node: Node, key_promoted: int, new_node: Node):
+        """Gerencia a promoção da chave e a divisão dos nós."""
+        
+        if old_node.parent is None:
+            # Caso 1: A raiz está sendo dividida
+            
+            # Cria uma nova raiz (InternalNode)
+            new_root = InternalNode(self.order)
+            new_root.keys = [key_promoted]
+            new_root.children = [old_node, new_node]
+            
+            # Atualiza os ponteiros pai
+            old_node.parent = new_root
+            new_node.parent = new_root
+            
+            # Atualiza a raiz da árvore
+            self.root = new_root
+            return
+
+        # Caso 2: Nó interno está sendo dividido
+        parent = old_node.parent
+        
+        # Adiciona a chave e o novo nó no pai
+        parent.add_key_child(key_promoted, new_node)
+
+        # Se o nó pai também ficar cheio, propaga a divisão
+        if parent.is_full():
+            key_parent_promoted, new_parent = parent.split()
+            self._handle_split(parent, key_parent_promoted, new_parent)
+
+    # --- Método de Busca ---
+
+    def search(self, key: int) -> any:
+        """Retorna o valor associado à chave, se existir."""
+        leaf = self._find_leaf(key)
+        
+        # No nó folha, busca a chave e retorna o valor
+        try:
+            index = leaf.keys.index(key)
+            return leaf.values[index]
+        except ValueError:
+            # Chave não encontrada no nó folha
+            return None
+
+    # --- Esboços de Métodos ---
