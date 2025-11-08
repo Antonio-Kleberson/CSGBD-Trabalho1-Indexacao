@@ -184,3 +184,26 @@ class BPlusTree:
             return None
 
     # --- Esboços de Métodos ---
+    def remove(self, key: int) -> bool:
+        """Remove a chave informada da árvore B+ (com borrow/merge)."""
+        # 1) localiza a folha
+        leaf = self._find_leaf(key)
+        try:
+            idx = leaf.keys.index(key)
+        except ValueError:
+            return False  # não existe
+
+        # 2) remove (k,v) da folha
+        leaf.keys.pop(idx)
+        leaf.values.pop(idx)
+
+        # 3) casos especiais da raiz
+        if leaf is self.root:
+            # raiz folha pode ficar vazia (árvore vazia) ou com poucas chaves
+            return True
+
+        # 4) reequilibra se necessário
+        self._rebalance_after_delete(leaf)
+        return True
+
+
