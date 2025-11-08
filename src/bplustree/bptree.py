@@ -243,3 +243,103 @@ class BPlusTree:
         else:
             self._fix_internal_underflow(node)
 
+    # ---------- folhas: borrow/merge ----------
+    def _fix_leaf_underflow(self, leaf: 'LeafNode'):
+        min_keys = self._leaf_min_keys()
+        if len(leaf.keys) >= min_keys:
+            return  # nada a fazer
+
+        parent, idx, left_sib, right_sib = self._get_siblings(leaf)
+
+        # 1) emprestar do irmão esquerdo
+        if isinstance(left_sib, LeafNode) and len(left_sib.keys) > min_keys:
+            k = left_sib.keys.pop()
+            v = left_sib.values.pop()
+            leaf.keys.insert(0, k)
+            leaf.values.insert(0, v)
+            # separador entre left_sib e leaf vira a 1ª chave do leaf
+            parent.keys[idx - 1] = leaf.keys[0]
+            return
+
+        # 2) emprestar do irmão direito
+        if isinstance(right_sib, LeafNode) and len(right_sib.keys) > min_keys:
+            k = right_sib.keys.pop(0)
+            v = right_sib.values.pop(0)
+            leaf.keys.append(k)
+            leaf.values.append(v)
+            # separador entre leaf e right_sib vira a 1ª chave do right_sib
+            parent.keys[idx] = right_sib.keys[0]
+            return
+
+        # 3) merge
+        if isinstance(left_sib, LeafNode):
+            # left <- leaf
+            left_sib.keys.extend(leaf.keys)
+            left_sib.values.extend(leaf.values)
+            left_sib.next_leaf = leaf.next_leaf
+            # remove separador correspondente no pai
+            del parent.keys[idx - 1]
+            del parent.children[idx]
+            self._rebalance_after_delete(parent)
+        elif isinstance(right_sib, LeafNode):
+            # leaf <- right
+            leaf.keys.extend(right_sib.keys)
+            leaf.values.extend(right_sib.values)
+            leaf.next_leaf = right_sib.next_leaf
+            del parent.keys[idx]
+            del parent.children[idx + 1]
+            self._rebalance_after_delete(parent)
+
+    # ---------- internos: borrow/merge ----------
+    def _fix_internal_underflow(self, node: 'InternalNode'):
+        min_keys = self._internal_min_keys()
+        if len(node.keys) >= min_keys:
+            return
+
+        parent, idx, left_sib, right_sib = self._get_siblings(node)
+
+        # 1) emprestar do irmão esquerdo
+        if isinstance(left_sib, InternalNode) and len(left_sib.keys) > min_keys:
+            sep = parent.keys[idx - 1]
+            borrow_key = left_sib.keys.pop()
+            borrow_child = left_sib.children.pop()
+            node.keys.insert(0, sep)
+            node.children.insert(0, borrow_child)
+            borrow_child.parent = node
+            parent.keys[idx - 1] = borrow_key
+            return
+
+        # 2) emprestar do irmão direito
+        if isinstance(right_sib, InternalNode) and len(right_sib.keys) > min_keys:
+            sep = parent.keys[idx]
+            borrow_key = right_sib.keys.pop(0)
+            borrow_child = right_sib.children.pop(0)
+            node.keys.append(sep)
+            node.children.append(borrow_child)
+            borrow_child.parent = node
+            parent.keys[idx] = borrow_key
+            return
+
+        # 3) merge
+        if isinstance(left_sib, InternalNode):
+            # left <- (sep do pai) <- node
+            sep = parent.keys[idx - 1]
+            left_sib.keys.append(sep)
+            left_sib.keys.extend(node.keys)
+            left_sib.children.extend(node.children)
+            for ch in node.children:
+                ch.parent = left_sib
+            del parent.keys[idx - 1]
+            del parent.children[idx]
+            self._rebalance_after_delete(parent)
+        elif isinstance(right_sib, InternalNode):
+            # node <- (sep do pai) <- right
+            sep = parent.keys[idx]
+            node.keys.append(sep)
+            node.keys.extend(right_sib.keys)
+            node.children.extend(right_sib.children)
+            for ch in right_sib.children:
+                ch.parent = node
+            del parent.keys[idx]
+            del parent.children[idx + 1]
+            self._rebalance_after_delete(parent)
