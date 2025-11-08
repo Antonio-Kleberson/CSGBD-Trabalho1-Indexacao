@@ -207,3 +207,39 @@ class BPlusTree:
         return True
 
 
+        # ---------- limites mínimos ----------
+    def _leaf_min_keys(self) -> int:
+        # folhas: max chaves = order-1; mínimo ≈ ceil((order-1)/2)
+        return math.ceil((self.order - 1) / 2)
+
+    def _internal_min_keys(self) -> int:
+        # internos: max chaves = order-1; min filhos = ceil(order/2)
+        # min chaves = min filhos - 1 = ceil(order/2) - 1
+        return math.ceil(self.order / 2) - 1
+
+    # ---------- utilidades ----------
+    def _get_siblings(self, node):
+        """Retorna (parent, idx_no_parent, left_sib, right_sib)."""
+        parent = node.parent
+        assert parent is not None
+        idx = parent.children.index(node)
+        left_sib = parent.children[idx - 1] if idx - 1 >= 0 else None
+        right_sib = parent.children[idx + 1] if idx + 1 < len(parent.children) else None
+        return parent, idx, left_sib, right_sib
+
+    # ---------- rebalance ----------
+    def _rebalance_after_delete(self, node):
+        """Reequilibra a partir de um nó (folha ou interno) que pode ter ficado abaixo do mínimo."""
+        # redução de altura se a raiz for interna e ficar sem chaves
+        if node is self.root:
+            if isinstance(node, InternalNode) and len(node.keys) == 0:
+                child = node.children[0]
+                child.parent = None
+                self.root = child
+            return
+
+        if isinstance(node, LeafNode):
+            self._fix_leaf_underflow(node)
+        else:
+            self._fix_internal_underflow(node)
+
