@@ -12,7 +12,7 @@ class Node:
 
     def is_full(self):
         """Verifica se o nó está cheio."""
-        return len(self.keys) == self.order - 1
+        return len(self.keys) > self.order - 1  # overflow
 
     def find_index(self, key):
         """Encontra o índice onde a chave deve ser inserida/buscada."""
@@ -30,10 +30,13 @@ class LeafNode(Node):
         self.next_leaf = None # Ponteiro para o próximo nó folha
 
     def add_key_value(self, key, value):
-        """Insere um par (chave, valor) mantendo a ordem."""
         index = self.find_index(key)
+        if index < len(self.keys) and self.keys[index] == key:
+            self.values[index] = value    # sobrescreve
+            return
         self.keys.insert(index, key)
         self.values.insert(index, value)
+
 
     def split(self):
         """Divide o nó folha em dois e retorna a chave promovida."""
