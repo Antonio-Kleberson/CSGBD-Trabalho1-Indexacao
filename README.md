@@ -48,11 +48,14 @@ A profundidade global (global_depth) indica quantos bits da função hash são u
 
 Operações principais:
 
-# Inserção: calcula o hash, acessa o bucket e, se cheio, realiza split (divisão).
+# Inserção: 
+Calcula o hash, acessa o bucket e, se cheio, realiza split (divisão).
 
-# Busca: aplica o hash e acessa diretamente o bucket correspondente.
+# Busca: 
+Aplica o hash e acessa diretamente o bucket correspondente.
 
-# Remoção: exclui o registro e tenta mergear (unir) buckets irmãos, reduzindo o diretório se possível.
+# Remoção: 
+Exclui o registro e tenta mergear (unir) buckets irmãos, reduzindo o diretório se possível.
 
 # 3.2 Árvore B+
 
@@ -183,11 +186,17 @@ Suporta buscas por intervalo.
 Testes asseguram que as operações respeitam as propriedades teóricas:
 
 def test_merge_and_shrink():
+
     h = ExtensibleHash(bucket_size=2)
+    
     for k in [1, 2, 3, 4]:
+    
         h.insert(k, f"v{k}")
+        
     h.remove(3)
+    
     h.remove(4)
+    
     assert h.global_depth >= 1
 
 
@@ -223,9 +232,7 @@ Documentação do Graphviz
 .
 
 Documentação do Pytest
-.
 
-💡 Anexo (opcional para README)
 Como rodar o projeto
 # Criar ambiente virtual
 python -m venv venv
