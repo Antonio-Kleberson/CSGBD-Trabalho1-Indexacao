@@ -227,3 +227,34 @@ class BPlusTree:
             del parent.keys[idx]
             del parent.children[idx + 1]
             self._rebalance_after_delete(parent)
+            
+    def display(self):
+        """Exibe a estrutura da Árvore B+ de forma hierárquica."""
+        print(f"\n===== Estrutura da Árvore B+ (Ordem {self.order}) =====")
+
+        if not self.root:
+            print("(Árvore vazia)")
+            return
+
+        queue = [(self.root, 0)]
+        current_level = 0
+        level_nodes = []
+
+        while queue:
+            node, level = queue.pop(0)
+            if level != current_level:
+                print(f"Nível {current_level}: ", end="")
+                print(" | ".join(level_nodes))
+                level_nodes = []
+                current_level = level
+
+            tipo = "F" if isinstance(node, LeafNode) else "I"
+            level_nodes.append(f"{tipo}{node.keys}")
+
+            if isinstance(node, InternalNode):
+                for child in node.children:
+                    queue.append((child, level + 1))
+
+        print(f"Nível {current_level}: ", end="")
+        print(" | ".join(level_nodes))
+        print("=======================================================")
