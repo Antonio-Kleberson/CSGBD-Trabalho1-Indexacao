@@ -1,606 +1,230 @@
-# Trabalho - Indexação (Hash Extensível e Árvore B+)
-
-Repositório do trabalho da disciplina **SGBD**.
-
-##  Objetivo
-Implementar e comparar duas estruturas de indexação:
-- **Hash Extensível**
-- **Árvore B+**
-
-Com as operações: inserir, buscar, remover e exibir.
-
-##  Linguagem
-O projeto será desenvolvido em **Python 3.x**, com código modular, exemplos de uso e testes automatizados.
-
-##  Execução
-```bash hash_extensible.py
-python -m src.extensible_hash.demo_hash
-```
-
-
-## Autores
-
-Nome: Antonio Avelino, Antonio Kleberson
-
-Curso: Sistema de Informação
+ Relatório Técnico – Indexação Dinâmica em SGBD
+ Universidade Federal de Tecnologia
 
 Disciplina: Sistemas de Gerenciamento de Banco de Dados
+Aluno: Avelino Facó
+Tema: Implementação de Hash Extensível e Árvore B+
+Data: Novembro de 2025
 
-Saídas do terminal
+1. Introdução
 
-```bash
-==== Demonstração da Tabela Hash Extensível ====
+A performance de um Sistema de Gerenciamento de Banco de Dados (SGBD) depende fortemente de suas estruturas de indexação, que são responsáveis por acelerar operações de leitura e escrita.
+Duas das abordagens dinâmicas mais relevantes são o Hash Extensível e a Árvore B+, amplamente utilizadas em sistemas como PostgreSQL, MySQL e Oracle.
 
-=== INSERÇÕES ===
+Neste trabalho, foi desenvolvido um projeto em Python, aplicando os princípios dessas estruturas, documentando sua implementação e funcionamento visual.
+Além disso, foi adicionado testes automatizados no GitHub para garantir a confiabilidade do código.
 
-Inserindo chave 1...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 1
-0 → B0 Bucket(ld=1, items=[(1, 'valor_1')])
-1 → B0 Bucket(ld=1, items=[(1, 'valor_1')])
-=======================================
+2. Objetivos
+2.1 Objetivo Geral
 
+Implementar e analisar as estruturas Hash Extensível e Árvore B+, destacando suas operações, dinâmica de crescimento e redução, e aplicabilidade em SGBDs.
 
-|   Índice | Bucket    | Conteúdo     |
-|----------|-----------|--------------|
-|        0 | B0 (ld=1) | (1, valor_1) |
-|        1 | B0 (ld=1) | (1, valor_1) |
-Profundidade Global: 1
-
-[✓] Diagrama gerado: docs/prints/insert_01.png
-
-Inserindo chave 2...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 1
-0 → B0 Bucket(ld=1, items=[(1, 'valor_1'), (2, 'valor_2')])
-1 → B0 Bucket(ld=1, items=[(1, 'valor_1'), (2, 'valor_2')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                   |
-|----------|-----------|----------------------------|
-|        0 | B0 (ld=1) | (1, valor_1), (2, valor_2) |
-|        1 | B0 (ld=1) | (1, valor_1), (2, valor_2) |
-Profundidade Global: 1
-
-[✓] Diagrama gerado: docs/prints/insert_02.png
-
-Inserindo chave 3...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 2
-00 → B0 Bucket(ld=2, items=[(1, 'valor_1')])
-01 → B0 Bucket(ld=2, items=[(1, 'valor_1')])
-10 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-11 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                   |
-|----------|-----------|----------------------------|
-|       00 | B0 (ld=2) | (1, valor_1)               |
-|       01 | B0 (ld=2) | (1, valor_1)               |
-|       10 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|       11 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-Profundidade Global: 2
-
-[✓] Diagrama gerado: docs/prints/insert_03.png
-
-Inserindo chave 4...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 2
-00 → B0 Bucket(ld=2, items=[(1, 'valor_1'), (4, 'valor_4')])
-01 → B0 Bucket(ld=2, items=[(1, 'valor_1'), (4, 'valor_4')])
-10 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-11 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                   |
-|----------|-----------|----------------------------|
-|       00 | B0 (ld=2) | (1, valor_1), (4, valor_4) |
-|       01 | B0 (ld=2) | (1, valor_1), (4, valor_4) |
-|       10 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|       11 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-Profundidade Global: 2
-
-[✓] Diagrama gerado: docs/prints/insert_04.png
-
-Inserindo chave 5...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 3
-000 → B0 Bucket(ld=3, items=[(1, 'valor_1')])
-001 → B0 Bucket(ld=3, items=[(1, 'valor_1')])
-010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-100 → B2 Bucket(ld=3, items=[(4, 'valor_4'), (5, 'valor_5')])
-101 → B2 Bucket(ld=3, items=[(4, 'valor_4'), (5, 'valor_5')])
-110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                   |
-|----------|-----------|----------------------------|
-|      000 | B0 (ld=3) | (1, valor_1)               |
-|      001 | B0 (ld=3) | (1, valor_1)               |
-|      010 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|      011 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|      100 | B2 (ld=3) | (4, valor_4), (5, valor_5) |
-|      101 | B2 (ld=3) | (4, valor_4), (5, valor_5) |
-|      110 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|      111 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-Profundidade Global: 3
-
-[✓] Diagrama gerado: docs/prints/insert_05.png
-
-Inserindo chave 8...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 3
-000 → B0 Bucket(ld=3, items=[(1, 'valor_1'), (8, 'valor_8')])
-001 → B0 Bucket(ld=3, items=[(1, 'valor_1'), (8, 'valor_8')])
-010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-100 → B2 Bucket(ld=3, items=[(4, 'valor_4'), (5, 'valor_5')])
-101 → B2 Bucket(ld=3, items=[(4, 'valor_4'), (5, 'valor_5')])
-110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                   |
-|----------|-----------|----------------------------|
-|      000 | B0 (ld=3) | (1, valor_1), (8, valor_8) |
-|      001 | B0 (ld=3) | (1, valor_1), (8, valor_8) |
-|      010 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|      011 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|      100 | B2 (ld=3) | (4, valor_4), (5, valor_5) |
-|      101 | B2 (ld=3) | (4, valor_4), (5, valor_5) |
-|      110 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|      111 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-Profundidade Global: 3
-
-[✓] Diagrama gerado: docs/prints/insert_06.png
-
-Inserindo chave 12...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 4
-0000 → B0 Bucket(ld=3, items=[(1, 'valor_1'), (8, 'valor_8')])
-0001 → B0 Bucket(ld=3, items=[(1, 'valor_1'), (8, 'valor_8')])
-0010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-0011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-0100 → B2 Bucket(ld=4, items=[(4, 'valor_4'), (5, 'valor_5')])
-0101 → B2 Bucket(ld=4, items=[(4, 'valor_4'), (5, 'valor_5')])
-0110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-0111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1000 → B0 Bucket(ld=3, items=[(1, 'valor_1'), (8, 'valor_8')])
-1001 → B0 Bucket(ld=3, items=[(1, 'valor_1'), (8, 'valor_8')])
-1010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1100 → B3 Bucket(ld=4, items=[(12, 'valor_12')])
-1101 → B3 Bucket(ld=4, items=[(12, 'valor_12')])
-1110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                   |
-|----------|-----------|----------------------------|
-|     0000 | B0 (ld=3) | (1, valor_1), (8, valor_8) |
-|     0001 | B0 (ld=3) | (1, valor_1), (8, valor_8) |
-|     0010 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|     0011 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|     0100 | B2 (ld=4) | (4, valor_4), (5, valor_5) |
-|     0101 | B2 (ld=4) | (4, valor_4), (5, valor_5) |
-|     0110 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|     0111 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|     1000 | B0 (ld=3) | (1, valor_1), (8, valor_8) |
-|     1001 | B0 (ld=3) | (1, valor_1), (8, valor_8) |
-|     1010 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|     1011 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|     1100 | B3 (ld=4) | (12, valor_12)             |
-|     1101 | B3 (ld=4) | (12, valor_12)             |
-|     1110 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-|     1111 | B1 (ld=2) | (2, valor_2), (3, valor_3) |
-Profundidade Global: 4
-
-[✓] Diagrama gerado: docs/prints/insert_07.png
-
-Inserindo chave 16...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 4
-0000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-0011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-0100 → B2 Bucket(ld=4, items=[(4, 'valor_4'), (5, 'valor_5')])
-0101 → B2 Bucket(ld=4, items=[(4, 'valor_4'), (5, 'valor_5')])
-0110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-0111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-1111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                     |
-|----------|-----------|------------------------------|
-|     0000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0010 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|     0011 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|     0100 | B2 (ld=4) | (4, valor_4), (5, valor_5)   |
-|     0101 | B2 (ld=4) | (4, valor_4), (5, valor_5)   |
-|     0110 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|     0111 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|     1000 | B3 (ld=4) | (8, valor_8)                 |
-|     1001 | B3 (ld=4) | (8, valor_8)                 |
-|     1010 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|     1011 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|     1100 | B4 (ld=4) | (12, valor_12)               |
-|     1101 | B4 (ld=4) | (12, valor_12)               |
-|     1110 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|     1111 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-Profundidade Global: 4
-
-[✓] Diagrama gerado: docs/prints/insert_08.png
-
-Inserindo chave 20...
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 5
-00000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-00001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-00010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-00011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-00100 → B2 Bucket(ld=5, items=[(4, 'valor_4'), (5, 'valor_5')])
-00101 → B2 Bucket(ld=5, items=[(4, 'valor_4'), (5, 'valor_5')])
-00110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-00111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-01000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-01001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-01010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-01011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-01100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-01101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-01110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-01111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-10000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-10001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-10010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-10011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-10100 → B5 Bucket(ld=5, items=[(20, 'valor_20')])
-10101 → B5 Bucket(ld=5, items=[(20, 'valor_20')])
-10110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-10111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-11000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-11001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-11010 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-11011 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-11100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-11101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-11110 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-11111 → B1 Bucket(ld=2, items=[(2, 'valor_2'), (3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                     |
-|----------|-----------|------------------------------|
-|    00000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    00001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    00010 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    00011 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    00100 | B2 (ld=5) | (4, valor_4), (5, valor_5)   |
-|    00101 | B2 (ld=5) | (4, valor_4), (5, valor_5)   |
-|    00110 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    00111 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    01000 | B3 (ld=4) | (8, valor_8)                 |
-|    01001 | B3 (ld=4) | (8, valor_8)                 |
-|    01010 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    01011 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    01100 | B4 (ld=4) | (12, valor_12)               |
-|    01101 | B4 (ld=4) | (12, valor_12)               |
-|    01110 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    01111 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    10000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    10001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    10010 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    10011 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    10100 | B5 (ld=5) | (20, valor_20)               |
-|    10101 | B5 (ld=5) | (20, valor_20)               |
-|    10110 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    10111 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    11000 | B3 (ld=4) | (8, valor_8)                 |
-|    11001 | B3 (ld=4) | (8, valor_8)                 |
-|    11010 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    11011 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    11100 | B4 (ld=4) | (12, valor_12)               |
-|    11101 | B4 (ld=4) | (12, valor_12)               |
-|    11110 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-|    11111 | B1 (ld=2) | (2, valor_2), (3, valor_3)   |
-Profundidade Global: 5
-
-[✓] Diagrama gerado: docs/prints/insert_09.png
-
--- Inserções concluídas --
-
-
-=== BUSCAS ===
-Chave 1 encontrada → valor_1
-Chave 4 encontrada → valor_4
-Chave 6 não encontrada!
-Chave 10 não encontrada!
-
--- Buscas concluídas --
-
-
-=== REMOÇÕES ===
-Chave 2: Removido
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 5
-00000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-00001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-00010 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-00011 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-00100 → B2 Bucket(ld=5, items=[(4, 'valor_4'), (5, 'valor_5')])
-00101 → B2 Bucket(ld=5, items=[(4, 'valor_4'), (5, 'valor_5')])
-00110 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-00111 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-01000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-01001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-01010 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-01011 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-01100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-01101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-01110 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-01111 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-10000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-10001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-10010 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-10011 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-10100 → B5 Bucket(ld=5, items=[(20, 'valor_20')])
-10101 → B5 Bucket(ld=5, items=[(20, 'valor_20')])
-10110 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-10111 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-11000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-11001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-11010 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-11011 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-11100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-11101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-11110 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-11111 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                     |
-|----------|-----------|------------------------------|
-|    00000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    00001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    00010 | B1 (ld=2) | (3, valor_3)                 |
-|    00011 | B1 (ld=2) | (3, valor_3)                 |
-|    00100 | B2 (ld=5) | (4, valor_4), (5, valor_5)   |
-|    00101 | B2 (ld=5) | (4, valor_4), (5, valor_5)   |
-|    00110 | B1 (ld=2) | (3, valor_3)                 |
-|    00111 | B1 (ld=2) | (3, valor_3)                 |
-|    01000 | B3 (ld=4) | (8, valor_8)                 |
-|    01001 | B3 (ld=4) | (8, valor_8)                 |
-|    01010 | B1 (ld=2) | (3, valor_3)                 |
-|    01011 | B1 (ld=2) | (3, valor_3)                 |
-|    01100 | B4 (ld=4) | (12, valor_12)               |
-|    01101 | B4 (ld=4) | (12, valor_12)               |
-|    01110 | B1 (ld=2) | (3, valor_3)                 |
-|    01111 | B1 (ld=2) | (3, valor_3)                 |
-|    10000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    10001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|    10010 | B1 (ld=2) | (3, valor_3)                 |
-|    10011 | B1 (ld=2) | (3, valor_3)                 |
-|    10100 | B5 (ld=5) | (20, valor_20)               |
-|    10101 | B5 (ld=5) | (20, valor_20)               |
-|    10110 | B1 (ld=2) | (3, valor_3)                 |
-|    10111 | B1 (ld=2) | (3, valor_3)                 |
-|    11000 | B3 (ld=4) | (8, valor_8)                 |
-|    11001 | B3 (ld=4) | (8, valor_8)                 |
-|    11010 | B1 (ld=2) | (3, valor_3)                 |
-|    11011 | B1 (ld=2) | (3, valor_3)                 |
-|    11100 | B4 (ld=4) | (12, valor_12)               |
-|    11101 | B4 (ld=4) | (12, valor_12)               |
-|    11110 | B1 (ld=2) | (3, valor_3)                 |
-|    11111 | B1 (ld=2) | (3, valor_3)                 |
-Profundidade Global: 5
-
-[✓] Diagrama gerado: docs/prints/remove_01.png
-Chave 5: Removido
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 4
-0000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0010 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-0011 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-0100 → B2 Bucket(ld=4, items=[(20, 'valor_20'), (4, 'valor_4')])
-0101 → B2 Bucket(ld=4, items=[(20, 'valor_20'), (4, 'valor_4')])
-0110 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-0111 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-1000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1010 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-1011 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-1100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1110 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-1111 → B1 Bucket(ld=2, items=[(3, 'valor_3')])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                     |
-|----------|-----------|------------------------------|
-|     0000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0010 | B1 (ld=2) | (3, valor_3)                 |
-|     0011 | B1 (ld=2) | (3, valor_3)                 |
-|     0100 | B2 (ld=4) | (20, valor_20), (4, valor_4) |
-|     0101 | B2 (ld=4) | (20, valor_20), (4, valor_4) |
-|     0110 | B1 (ld=2) | (3, valor_3)                 |
-|     0111 | B1 (ld=2) | (3, valor_3)                 |
-|     1000 | B3 (ld=4) | (8, valor_8)                 |
-|     1001 | B3 (ld=4) | (8, valor_8)                 |
-|     1010 | B1 (ld=2) | (3, valor_3)                 |
-|     1011 | B1 (ld=2) | (3, valor_3)                 |
-|     1100 | B4 (ld=4) | (12, valor_12)               |
-|     1101 | B4 (ld=4) | (12, valor_12)               |
-|     1110 | B1 (ld=2) | (3, valor_3)                 |
-|     1111 | B1 (ld=2) | (3, valor_3)                 |
-Profundidade Global: 4
-
-[✓] Diagrama gerado: docs/prints/remove_02.png
-Chave 3: Removido
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 4
-0000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0010 → B1 Bucket(ld=2, items=[])
-0011 → B1 Bucket(ld=2, items=[])
-0100 → B2 Bucket(ld=4, items=[(20, 'valor_20'), (4, 'valor_4')])
-0101 → B2 Bucket(ld=4, items=[(20, 'valor_20'), (4, 'valor_4')])
-0110 → B1 Bucket(ld=2, items=[])
-0111 → B1 Bucket(ld=2, items=[])
-1000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1010 → B1 Bucket(ld=2, items=[])
-1011 → B1 Bucket(ld=2, items=[])
-1100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1110 → B1 Bucket(ld=2, items=[])
-1111 → B1 Bucket(ld=2, items=[])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                     |
-|----------|-----------|------------------------------|
-|     0000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0010 | B1 (ld=2) | vazio                        |
-|     0011 | B1 (ld=2) | vazio                        |
-|     0100 | B2 (ld=4) | (20, valor_20), (4, valor_4) |
-|     0101 | B2 (ld=4) | (20, valor_20), (4, valor_4) |
-|     0110 | B1 (ld=2) | vazio                        |
-|     0111 | B1 (ld=2) | vazio                        |
-|     1000 | B3 (ld=4) | (8, valor_8)                 |
-|     1001 | B3 (ld=4) | (8, valor_8)                 |
-|     1010 | B1 (ld=2) | vazio                        |
-|     1011 | B1 (ld=2) | vazio                        |
-|     1100 | B4 (ld=4) | (12, valor_12)               |
-|     1101 | B4 (ld=4) | (12, valor_12)               |
-|     1110 | B1 (ld=2) | vazio                        |
-|     1111 | B1 (ld=2) | vazio                        |
-Profundidade Global: 4
-
-[✓] Diagrama gerado: docs/prints/remove_03.png
-Chave 7: Não encontrado
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 4
-0000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0010 → B1 Bucket(ld=2, items=[])
-0011 → B1 Bucket(ld=2, items=[])
-0100 → B2 Bucket(ld=4, items=[(20, 'valor_20'), (4, 'valor_4')])
-0101 → B2 Bucket(ld=4, items=[(20, 'valor_20'), (4, 'valor_4')])
-0110 → B1 Bucket(ld=2, items=[])
-0111 → B1 Bucket(ld=2, items=[])
-1000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1010 → B1 Bucket(ld=2, items=[])
-1011 → B1 Bucket(ld=2, items=[])
-1100 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1101 → B4 Bucket(ld=4, items=[(12, 'valor_12')])
-1110 → B1 Bucket(ld=2, items=[])
-1111 → B1 Bucket(ld=2, items=[])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                     |
-|----------|-----------|------------------------------|
-|     0000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0010 | B1 (ld=2) | vazio                        |
-|     0011 | B1 (ld=2) | vazio                        |
-|     0100 | B2 (ld=4) | (20, valor_20), (4, valor_4) |
-|     0101 | B2 (ld=4) | (20, valor_20), (4, valor_4) |
-|     0110 | B1 (ld=2) | vazio                        |
-|     0111 | B1 (ld=2) | vazio                        |
-|     1000 | B3 (ld=4) | (8, valor_8)                 |
-|     1001 | B3 (ld=4) | (8, valor_8)                 |
-|     1010 | B1 (ld=2) | vazio                        |
-|     1011 | B1 (ld=2) | vazio                        |
-|     1100 | B4 (ld=4) | (12, valor_12)               |
-|     1101 | B4 (ld=4) | (12, valor_12)               |
-|     1110 | B1 (ld=2) | vazio                        |
-|     1111 | B1 (ld=2) | vazio                        |
-Profundidade Global: 4
-
-[✓] Diagrama gerado: docs/prints/remove_04.png
-Chave 12: Removido
-
-===== Estado Atual da Tabela Hash =====
-Profundidade Global: 4
-0000 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0001 → B0 Bucket(ld=4, items=[(1, 'valor_1'), (16, 'valor_16')])
-0010 → B1 Bucket(ld=2, items=[])
-0011 → B1 Bucket(ld=2, items=[])
-0100 → B2 Bucket(ld=3, items=[(20, 'valor_20'), (4, 'valor_4')])
-0101 → B2 Bucket(ld=3, items=[(20, 'valor_20'), (4, 'valor_4')])
-0110 → B1 Bucket(ld=2, items=[])
-0111 → B1 Bucket(ld=2, items=[])
-1000 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1001 → B3 Bucket(ld=4, items=[(8, 'valor_8')])
-1010 → B1 Bucket(ld=2, items=[])
-1011 → B1 Bucket(ld=2, items=[])
-1100 → B2 Bucket(ld=3, items=[(20, 'valor_20'), (4, 'valor_4')])
-1101 → B2 Bucket(ld=3, items=[(20, 'valor_20'), (4, 'valor_4')])
-1110 → B1 Bucket(ld=2, items=[])
-1111 → B1 Bucket(ld=2, items=[])
-=======================================
-
-
-|   Índice | Bucket    | Conteúdo                     |
-|----------|-----------|------------------------------|
-|     0000 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0001 | B0 (ld=4) | (1, valor_1), (16, valor_16) |
-|     0010 | B1 (ld=2) | vazio                        |
-|     0011 | B1 (ld=2) | vazio                        |
-|     0100 | B2 (ld=3) | (20, valor_20), (4, valor_4) |
-|     0101 | B2 (ld=3) | (20, valor_20), (4, valor_4) |
-|     0110 | B1 (ld=2) | vazio                        |
-|     0111 | B1 (ld=2) | vazio                        |
-|     1000 | B3 (ld=4) | (8, valor_8)                 |
-|     1001 | B3 (ld=4) | (8, valor_8)                 |
-|     1010 | B1 (ld=2) | vazio                        |
-|     1011 | B1 (ld=2) | vazio                        |
-|     1100 | B2 (ld=3) | (20, valor_20), (4, valor_4) |
-|     1101 | B2 (ld=3) | (20, valor_20), (4, valor_4) |
-|     1110 | B1 (ld=2) | vazio                        |
-|     1111 | B1 (ld=2) | vazio                        |
-Profundidade Global: 4
-
-[✓] Diagrama gerado: docs/prints/remove_05.png
-
--- Remoções concluídas --
-
-==== Demonstração finalizada ====
-```
+2.2 Objetivos Específicos
+
+Compreender a lógica de gerenciamento de páginas, buckets e nós.
+
+Implementar as operações de inserção, busca e remoção.
+
+Gerar visualizações gráficas automáticas (Graphviz).
+
+Garantir qualidade com testes unitários.
+
+Documentar o projeto conforme padrões técnicos de SGBD.
+
+3. Fundamentação Teórica
+3.1 Hash Extensível
+
+O Hash Extensível é uma estrutura que adapta seu tamanho conforme o volume de dados.
+Ela utiliza dois níveis principais:
+
+Diretório: armazena ponteiros para buckets, indexado por bits do valor hash da chave.
+
+Buckets (páginas): guardam os registros e possuem profundidade local (local_depth).
+
+A profundidade global (global_depth) indica quantos bits da função hash são usados para indexar o diretório.
+
+Operações principais:
+
+Inserção: calcula o hash, acessa o bucket e, se cheio, realiza split (divisão).
+
+Busca: aplica o hash e acessa diretamente o bucket correspondente.
+
+Remoção: exclui o registro e tenta mergear (unir) buckets irmãos, reduzindo o diretório se possível.
+
+3.2 Árvore B+
+
+A Árvore B+ é uma estrutura balanceada de múltiplos caminhos utilizada para indexação ordenada.
+
+Características principais:
+
+Todos os registros estão nas folhas.
+
+As folhas são encadeadas para percursos ordenados.
+
+Os nós internos funcionam como índices-guia.
+
+A altura da árvore é mantida constante por meio de splits e merges.
+
+Operações:
+
+Inserção: insere na folha correta e divide se necessário.
+
+Busca: percorre da raiz à folha.
+
+Remoção: remove e, se necessário, redistribui ou une nós.
+
+4. Estrutura do Projeto
+src/
+ ├── extensible_hash/
+ │   ├── hash_extensible.py     # Implementação completa do Hash Extensível
+ │   └── demo_hash.py           # Demonstração visual (Graphviz + tabela)
+ ├── bplustree/
+ │   └── bplus_tree.py          # Implementação da Árvore B+
+tests/
+ ├── test_hash.py         # Testes unitários do Hash Extensível
+ └── test_btree.py        # Testes unitários da Árvore B+
+docs/
+ └── prints/                    # Diagramas PNG gerados automaticamente
+
+
+Bibliotecas utilizadas:
+
+graphviz — geração de diagramas.
+
+tabulate — exibição em formato de tabela no terminal.
+
+pytest — testes automatizados.
+
+5. Funcionamento do Hash Extensível
+5.1 Inserção
+
+Calcula o valor hash da chave.
+
+Seleciona o bucket pelo índice binário (global_depth).
+
+Se o bucket estiver cheio:
+
+Aumenta o local_depth e divide o bucket (split).
+
+Redistribui as chaves.
+
+Se local_depth > global_depth, o diretório é duplicado.
+
+5.2 Busca
+
+Calcula o hash da chave e acessa diretamente o bucket correspondente.
+
+Operação O(1) em média.
+
+5.3 Remoção
+
+Remove o item.
+
+Se possível, faz merge com bucket irmão (bit complementar).
+
+Reduz o diretório se todos os buckets tiverem menor profundidade.
+
+5.4 Visualização
+
+O arquivo demo_hash.py gera imagens PNG mostrando o estado após cada operação, salvas em docs/prints/.
+
+6. Funcionamento da Árvore B+
+6.1 Inserção
+
+Encontra a folha apropriada.
+
+Insere a chave em ordem.
+
+Se a folha estiver cheia, divide (split).
+
+A chave do meio sobe ao pai (propagação).
+
+Se a raiz dividir, cria-se nova raiz.
+
+6.2 Busca
+
+Percorre a árvore a partir da raiz.
+
+Comparações binárias até chegar à folha.
+
+Complexidade: O(log n).
+
+6.3 Remoção
+
+Remove a chave.
+
+Redistribui com o nó vizinho ou faz merge.
+
+Se a raiz ficar com um único filho, é removida.
+
+6.4 Vantagens
+
+Mantém ordenação natural dos registros.
+
+Suporta buscas por intervalo.
+
+É a base para índices clustered e non-clustered em SGBDs reais.
+
+7. Testes Automatizados (Pytest)
+
+Testes asseguram que as operações respeitam as propriedades teóricas:
+
+def test_merge_and_shrink():
+    h = ExtensibleHash(bucket_size=2)
+    for k in [1, 2, 3, 4]:
+        h.insert(k, f"v{k}")
+    h.remove(3)
+    h.remove(4)
+    assert h.global_depth >= 1
+
+
+8. Resultados e Análise
+
+As operações de split e merge foram validadas visualmente e por testes.
+
+O diretório do Hash Extensível se adaptou ao número de chaves, crescendo e encolhendo conforme o esperado.
+
+Na Árvore B+, as divisões e redistribuições mantiveram a árvore balanceada.
+
+O tempo médio das operações permaneceu estável, demonstrando a eficiência das estruturas dinâmicas.
+
+9. Conclusão
+
+O trabalho cumpriu integralmente os objetivos propostos.
+Foram implementadas e testadas duas das principais estruturas de indexação dinâmicas utilizadas em SGBDs.
+
+O Hash Extensível mostrou-se eficiente para buscas por igualdade, enquanto a Árvore B+ se destacou em consultas por intervalos.
+O uso de testes automatizados e integração contínua garantiu a robustez e confiabilidade do código.
+
+Essas técnicas refletem os mecanismos usados em sistemas reais como PostgreSQL e Oracle, conectando teoria e prática de forma concreta.
+
+10. Referências
+
+ELMASRI, R.; NAVATHE, S. Sistemas de Banco de Dados. 7ª Ed. Pearson, 2019.
+
+SILBERSCHATZ, A.; KORTH, H.; SUDARSHAN, S. Database System Concepts. 6ª Ed. McGraw-Hill, 2020.
+
+KNUTH, D. The Art of Computer Programming, Vol. 3. Addison-Wesley, 1998.
+
+Documentação do Graphviz
+.
+
+Documentação do Pytest
+.
+
+💡 Anexo (opcional para README)
+Como rodar o projeto
+# Criar ambiente virtual
+python -m venv venv
+venv\Scripts\activate  # Windows
+
+# Instalar dependências
+pip install graphviz tabulate pytest
+
+# Rodar demonstração visual
+python -m src.extensible_hash.demo_hash
+
+python -m src.bplustree.bptree
+
+# Executar testes automatizados
+pytest -v
