@@ -1,4 +1,6 @@
 import math
+import os
+from graphviz import Digraph
 
 class Node:
     def __init__(self, order: int):
@@ -258,3 +260,49 @@ class BPlusTree:
         print(f"Nível {current_level}: ", end="")
         print(" | ".join(level_nodes))
         print("=======================================================")
+        
+        
+    def display_graphviz(self, filename_prefix="btree", out_dir="docs/imagens_btree", fmt="png"):
+        os.makedirs(out_dir, exist_ok=True)
+        g = Digraph("BPlusTree", format=fmt)
+        g.attr("node", shape="record", fontname="Helvetica", fontsize="10")
+        g.attr("edge", arrowsize="0.6")
+
+        name_map = {}
+        counter = {"i": 0}
+
+        def node_name(n):
+            if n not in name_map:
+                name_map[n] = f"n{counter['i']}"
+                counter["i"] += 1
+            return name_map[n]
+
+        def make_label(n):
+            if isinstance(n, LeafNode):
+                body = "|".join(str(k) for k in n.keys) if n.keys else "•"
+                return f"{{Leaf|{body}}}"
+            else:
+                parts = []
+                # porta para cada child: c0 k0 c1 k1 ... ck
+                for i, k in enumerate(n.keys):
+                    parts.append(f"<c{i}>")
+                    parts.append(str(k))
+                parts.append(f"<c{len(n.keys)}>")  # última porta
+                return "{Internal|" + "|".join(parts) + "}"
+
+        def emit(n):
+            nid = node_name(n)
+            g.node(nid, make_label(n))
+            if isinstance(n, InternalNode):
+                for i, ch in enumerate(n.children):
+                    cid = node_name(ch)
+                    g.node(cid, make_label(ch))
+                    g.edge(f"{nid}:c{i}", cid)
+                    emit(ch)
+
+        emit(self.root)
+        base = os.path.join(out_dir, f"{filename_prefix}")
+        rendered_path = g.render(base, cleanup=True)  # ex.: docs/imagens_btree/btree.png
+        print(f"Imagem gerada em: {rendered_path}")
+        return rendered_path
+
