@@ -3,7 +3,7 @@
 
 Disciplina: Sistemas de Gerenciamento de Banco de Dados
 
-Aluno: Avelino Facó
+Aluno: Antonio Avelino, Antonio Kleberson 
 
 Tema: Implementação de Hash Extensível e Árvore B+
 
@@ -73,11 +73,14 @@ A altura da árvore é mantida constante por meio de splits e merges.
 
 Operações:
 
-# Inserção: insere na folha correta e divide se necessário.
+# Inserção: 
+insere na folha correta e divide se necessário.
 
-# Busca: percorre da raiz à folha.
+# Busca: 
+percorre da raiz à folha.
 
-# Remoção: remove e, se necessário, redistribui ou une nós.
+# Remoção: 
+remove e, se necessário, redistribui ou une nós.
 
 # 4. Estrutura do Projeto
 src/
