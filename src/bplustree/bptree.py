@@ -89,6 +89,8 @@ class BPlusTree:
         if leaf.is_full():
             key_promoted, new_node = leaf.split()
             self._handle_split(leaf, key_promoted, new_node)
+        self._snapshot(f"ins_{key}")
+
 
     def _handle_split(self, old_node: Node, key_promoted: int, new_node: Node):
         if old_node.parent is None:
@@ -99,11 +101,19 @@ class BPlusTree:
             new_node.parent = new_root
             self.root = new_root
             return
+
         parent = old_node.parent
-        parent.add_key_child(key_promoted, new_node)
-        if parent.is_full():
+
+        pos = parent.children.index(old_node)
+        parent.keys.insert(pos, key_promoted)
+        parent.children.insert(pos + 1, new_node)
+        new_node.parent = parent
+
+        # Se o pai estourar, propaga
+        if len(parent.keys) > parent.order - 1:
             key_parent_promoted, new_parent = parent.split()
             self._handle_split(parent, key_parent_promoted, new_parent)
+
 
     def search(self, key: int) -> any:
         leaf = self._find_leaf(key)
@@ -119,12 +129,19 @@ class BPlusTree:
             idx = leaf.keys.index(key)
         except ValueError:
             return False
+
         leaf.keys.pop(idx)
         leaf.values.pop(idx)
+
         if leaf is self.root:
+            # faça o snapshot mesmo quando a raiz é folha
+            self._snapshot(f"rem_{key}")
             return True
+
         self._rebalance_after_delete(leaf)
+        self._snapshot(f"rem_{key}")
         return True
+
 
     def _leaf_min_keys(self) -> int:
         return math.ceil((self.order - 1) / 2)
@@ -306,3 +323,15 @@ class BPlusTree:
         print(f"Imagem gerada em: {rendered_path}")
         return rendered_path
 
+    def enable_snapshots(self, prefix="btree", out_dir="docs/imagens_btree", fmt="png"):
+        os.makedirs(out_dir, exist_ok=True)
+        self._snap = {"prefix": prefix, "dir": out_dir, "fmt": fmt, "n": 0}
+
+    def _snapshot(self, label):
+        if getattr(self, "_snap", None):
+            n = self._snap["n"]
+            fname = f"{self._snap['prefix']}_{n:03d}_{label}"
+            self.display_graphviz(filename_prefix=fname, out_dir=self._snap["dir"], fmt=self._snap["fmt"])
+            self._snap["n"] += 1
+    
+    
