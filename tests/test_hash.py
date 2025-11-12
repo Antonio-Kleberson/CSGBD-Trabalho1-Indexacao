@@ -1,6 +1,18 @@
-# tests/test_hash_merge.py
 from src.extensible_hash.hash_extensible import ExtensibleHash
 
+# tests/test_hash_basic.py
+def test_insertion_and_search():
+    h = ExtensibleHash(bucket_size=2)
+    h.insert(1, "um")
+    h.insert(2, "dois")
+    h.insert(3, "tres")
+
+    assert h.search(1) == "um"
+    assert h.search(3) == "tres"
+    assert h.search(999) is None
+
+
+# tests/test_hash_merge.py
 def test_merge_and_shrink():
     h = ExtensibleHash(bucket_size=2)
     # Inserir chaves que gerem splits e aumento de global_depth
