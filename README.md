@@ -247,7 +247,20 @@ pip install graphviz tabulate pytest
 # Rodar demonstração visual
 python -m src.extensible_hash.demo_hash
 
-python -m src.bplustree.bptree
+python -m src.bplustree.
+
+# Executar manualmente
+
+from src.bplustree.bptree import BPlusTree
+
+t = BPlusTree(order=4)
+t.enable_snapshots(prefix="btree", out_dir="docs/imagens_btree")
+
+t.insert(10, "v10")
+t.insert(20, "v20")
+t.insert(5, "v5")
+t.remove(10)
+
 
 # Executar testes automatizados
 pytest -v

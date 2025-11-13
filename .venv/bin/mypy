@@ -1,4 +1,4 @@
-#!/home/kleberson/Documentos/UFC/CSGBD/CSGBD-Trabalho1-Indexacao/.venv/bin/python
+#!/home/kleberson/Documentos/UFC/CSGBD/CSGBD-Trabalho1-Indexacao/.venv/bin/python3
 import sys
 from mypy.__main__ import console_entry
 if __name__ == '__main__':
